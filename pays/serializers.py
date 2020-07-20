@@ -17,19 +17,25 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'username', 'email', 'wallet']
 
 
-class TransferSerializer(serializers.ModelSerializer):
+class Transaction(serializers.ModelSerializer):
+    owner = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+
+class TransferSerializer(Transaction):
     class Meta:
         model = TransferTransaction
-        fields = ['from_wallet', 'to_wallet', 'amount']
+        fields = ['from_wallet', 'to_wallet', 'amount', 'owner']
 
     def create(self, validated_data):
         return TransferTransaction.objects.create(**validated_data)
 
 
-class FillUpSerializer(serializers.ModelSerializer):
+class FillUpSerializer(Transaction):
     class Meta:
         model = FillUpTransaction
-        fields = ['to_wallet', 'amount']
+        fields = ['to_wallet', 'amount', 'owner']
 
     def create(self, validated_data):
         return FillUpTransaction.objects.create(**validated_data)
